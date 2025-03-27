@@ -1,0 +1,2 @@
+utc_start_time,host,eventType,track_name,track_guid,track_maker_id,track_type,finished_state,max_laps,max_time_without_start_time,start_time,hotlapping,participants
+2025-03-13T20:01:06+00:00,90262048422995998,Race,Australian GP v1.16,165r4h74x603-36kthve,76561198096169747,Circuit,Finished,51,864000000,73600,False,20
