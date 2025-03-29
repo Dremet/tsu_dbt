@@ -15,5 +15,6 @@ SELECT
     max_time_without_start_time as e_max_time_wo_start_time, 
     start_time as e_start_time, 
     hotlapping as e_is_hotlapping, 
-    participants as e_number_participants
+    participants as e_number_participants,
+    server as e_server
 FROM {{ ref("new_event") }}

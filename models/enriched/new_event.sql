@@ -10,6 +10,7 @@ SELECT
     max_time_without_start_time, 
     start_time, 
     hotlapping, 
-    participants
+    participants,
+    server
 FROM source.json_event je
 left join {{ ref("new_track") }} nt on nt.track_guid = je.track_guid

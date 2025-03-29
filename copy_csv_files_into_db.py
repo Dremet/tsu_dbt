@@ -63,7 +63,7 @@ def release_lock():
 ###############################################################################
 # 4) Main function
 ###############################################################################
-def import_csv_files(folder_path, db_url):
+def import_csv_files(folder_path, db_url, server):
     """
     - Acquire the global lock.
     - Truncate all known tables in the 'source' schema.
@@ -110,6 +110,10 @@ def import_csv_files(folder_path, db_url):
 
         try:
             df = pd.read_csv(file_path)
+
+            if matched_table == "json_event":
+                df["server"] = server
+
             df.to_sql(
                 matched_table,
                 engine,
@@ -135,8 +139,10 @@ if __name__ == "__main__":
         print("Error: PG_DATABASE_URL not found in .env")
         sys.exit(1)
 
-    if len(sys.argv) < 2:
-        print("Usage: python import_csv.py <folder_path>")
+    if len(sys.argv) < 3:
+        print(
+            "Usage: uv run python copy_csv_files_into_db.py.py <folder_path> <event/heat/hotlapping>"
+        )
         sys.exit(1)
 
     folder = sys.argv[1]
@@ -144,4 +150,11 @@ if __name__ == "__main__":
         print(f"Error: '{folder}' is not a valid directory.")
         sys.exit(1)
 
-    import_csv_files(folder, db_url)
+    server = sys.argv[2]
+    assert server in [
+        "event",
+        "heat",
+        "hotlapping",
+    ], "I only know event/heat/hotlapping as server (second command line argument)"
+
+    import_csv_files(folder, db_url, server)
