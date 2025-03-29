@@ -1,6 +1,6 @@
 {{
     config(
-        unique_key=['d_id']
+        unique_key=['v_id']
     )
 }}
 
