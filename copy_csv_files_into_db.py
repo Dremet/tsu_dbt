@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, text
 # 1) Dictionary of file suffix -> table name
 ###############################################################################
 CSV_SUFFIX_TO_TABLE = {
-    "event.checkpoint-results.csv": "checkpoint_results",
+    "event.checkpoint-results.csv": "json_checkpoint_results",
     "event.details.compounds.csv": "log_compounds",
     "event.details.drivers.csv": "log_drivers",
     "event.details.main.csv": "log_main",
@@ -152,9 +152,9 @@ if __name__ == "__main__":
 
     server = sys.argv[2]
     assert server in [
-        "event",
-        "heat",
+        "events",
+        "heats",
         "hotlapping",
-    ], "I only know event/heat/hotlapping as server (second command line argument)"
+    ], "I only know events/heats/hotlapping as server (second command line argument)"
 
     import_csv_files(folder, db_url, server)
