@@ -32,5 +32,13 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   tsu_dbt:
     # Config indicated by + and applies to all files under models/example/
-    example:
-      +materialized: view
+    enriched:
+      +schema: enriched
+      +materialized: table
+    base:
+      +schema: base
+      +materialized: incremental
+      +on_schema_change: append
+    mart:
+      +schema: mart
+      +materialized: table

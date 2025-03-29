@@ -1,21 +1,21 @@
-index,name,steam_id,ai,clan,flag,vehicle_name,vehicle_guid,start_position
-0,Dremet,76561197989276622,False,SAU,Germany,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,9
-1,Frozeni,76561198055146098,False,VRB,Finland,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,3
-2,Wispa Gold,76561198038978283,False,VRB,United_Kingdom,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,8
-3,Grandie,76561197960585277,False,MER,Finland,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,2
-4,S ΣaⓁ hßD,76561198006797349,False,MER,Brazil,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,6
-5,Jonnooo.,76561197969779893,False,MCL,Guernsey,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,5
-6,Nestori,76561198130622958,False,VRB,Finland,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,4
-7,JBence,76561198067261467,False,WIL,Hungary,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,10
-8,ChargedJT,76561198979803801,False,MCL,United_Kingdom,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,1
-9,SSR | Boxerevo,76561198091139327,False,FER,Brazil,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,7
-10,MrBubbles,76561198245163882,False,,Netherlands,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,19
-11,Igiava,76561198813518085,False,SAU,Russia,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,15
-12,Yehudahsan,76561199023733877,False,4,Spain,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,20
-13,Cosanderi,76561198999907438,False,ALP,Finland,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,16
-14,McVizn,76561198131829686,False,SAU,Germany,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,12
-15,darren.gurney,76561198071671577,False,AMR,United_Kingdom,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,13
-16,cyberpunk_42,76561198096169747,False,FER,Bosnia_and_Herzegovina,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,14
-17,grongos,76561198065197355,False,WIL,Hungary,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,17
-18,CouchFerret,76561197982925324,False,WIL,Hungary,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,11
-19,taHleS,76561197982451598,False,,None,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,18
+index,local_index,name,steam_id,ai,clan,flag,vehicle_name,vehicle_guid,start_position
+0,0,Dremet,76561197989276622,False,SAU,Germany,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,9
+1,0,Frozeni,76561198055146098,False,VRB,Finland,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,3
+2,0,Wispa Gold,76561198038978283,False,VRB,United_Kingdom,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,8
+3,0,Grandie,76561197960585277,False,MER,Finland,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,2
+4,0,S ΣaⓁ hßD,76561198006797349,False,MER,Brazil,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,6
+5,0,Jonnooo.,76561197969779893,False,MCL,Guernsey,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,5
+6,0,Nestori,76561198130622958,False,VRB,Finland,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,4
+7,0,JBence,76561198067261467,False,WIL,Hungary,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,10
+8,0,ChargedJT,76561198979803801,False,MCL,United_Kingdom,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,1
+9,0,SSR | Boxerevo,76561198091139327,False,FER,Brazil,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,7
+10,0,MrBubbles,76561198245163882,False,,Netherlands,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,19
+11,0,Igiava,76561198813518085,False,SAU,Russia,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,15
+12,0,Yehudahsan,76561199023733877,False,4,Spain,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,20
+13,0,Cosanderi,76561198999907438,False,ALP,Finland,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,16
+14,0,McVizn,76561198131829686,False,SAU,Germany,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,12
+15,0,darren.gurney,76561198071671577,False,AMR,United_Kingdom,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,13
+16,0,cyberpunk_42,76561198096169747,False,FER,Bosnia_and_Herzegovina,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,14
+17,0,grongos,76561198065197355,False,WIL,Hungary,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,17
+18,0,CouchFerret,76561197982925324,False,WIL,Hungary,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,11
+19,0,taHleS,76561197982451598,False,,None,Grand Prix F1 v8,xn6aadw6r6b-2xjnwqj,18
