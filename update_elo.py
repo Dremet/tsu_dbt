@@ -145,7 +145,7 @@ def run_elo_for_one_event(event_df: pd.DataFrame, last_elo_map: dict) -> pd.Data
     return pd.DataFrame(results)
 
 
-def run_elo_calculation(folder: str, db_url: str, table_name: str):
+def run_elo_calculation(db_url: str, table_name: str):
     """
     Main function to run the Elo calculation.
 
@@ -158,7 +158,9 @@ def run_elo_calculation(folder: str, db_url: str, table_name: str):
     # Define fixed schema table names
     read_table = f"base.elo_{table_name}"
     write_table = (
-        "source.new_event_elos" if table_name == "events" else "source.new_heat_elos"
+        "enriched.new_event_elos"
+        if table_name == "events"
+        else "enriched.new_heat_elos"
     )
 
     engine = create_engine(db_url)
@@ -176,7 +178,7 @@ def run_elo_calculation(folder: str, db_url: str, table_name: str):
 
         # Fetch new race data for the specified server type
         df_all = fetch_new_race_data(conn, table_name)
-        df_all = df_all.sort_values("e_timestamp", ascending=True).reset_index(
+        df_all = df_all.sort_values("utc_timestamp", ascending=True).reset_index(
             drop=True
         )
 
