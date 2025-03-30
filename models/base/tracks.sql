@@ -1,13 +1,13 @@
 {{
     config(
-        unique_key=['t_id']
+        unique_key=['tr_id']
     )
 }}
 
 SELECT 
-    id as t_id,
-    track_name as t_name, 
-    track_guid as t_guid, 
-    track_maker_id as t_maker_id, 
-    track_type as t_type
+    id as tr_id,
+    track_name as tr_name, 
+    track_guid as tr_guid, 
+    track_maker_id as tr_maker_id, 
+    track_type as tr_type
 FROM {{ ref("new_track") }}

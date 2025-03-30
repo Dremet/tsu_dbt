@@ -6,7 +6,7 @@
 
 SELECT 
     id as e_id,
-    track_id as t_t_id,
+    track_id as tr_tr_id,
     utc_timestamp as e_timestamp, 
     host as e_host, 
     event_type as e_type,
