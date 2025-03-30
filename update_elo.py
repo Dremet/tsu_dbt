@@ -145,7 +145,7 @@ def run_elo_for_one_event(event_df: pd.DataFrame, last_elo_map: dict) -> pd.Data
     return pd.DataFrame(results)
 
 
-def run_elo_calculation(db_url: str, table_name: str):
+def run_elo_calculation(folder: str, db_url: str, table_name: str):
     """
     Main function to run the Elo calculation.
 
@@ -155,12 +155,10 @@ def run_elo_calculation(db_url: str, table_name: str):
     if table_name not in ["events", "heats"]:
         raise ValueError("Only 'events' or 'heats' are allowed as table name argument.")
 
-    # Define full table names (the schema is fixed)
+    # Define fixed schema table names
     read_table = f"base.elo_{table_name}"
     write_table = (
-        "enriched.new_event_elos"
-        if table_name == "events"
-        else "enriched.new_heat_elos"
+        "source.new_event_elos" if table_name == "events" else "source.new_heat_elos"
     )
 
     engine = create_engine(db_url)
@@ -170,12 +168,15 @@ def run_elo_calculation(db_url: str, table_name: str):
         create_elo_table_if_not_exists(conn, read_table)
         create_elo_table_if_not_exists(conn, write_table)
 
+        # Truncate the target source table before writing
+        conn.execute(text(f"TRUNCATE TABLE {write_table}"))
+
         # Retrieve current Elo values from the base table
         last_elo_map = get_last_elo_map(conn, read_table, table_name)
 
         # Fetch new race data for the specified server type
         df_all = fetch_new_race_data(conn, table_name)
-        df_all = df_all.sort_values("utc_timestamp", ascending=True).reset_index(
+        df_all = df_all.sort_values("e_timestamp", ascending=True).reset_index(
             drop=True
         )
 
@@ -190,7 +191,6 @@ def run_elo_calculation(db_url: str, table_name: str):
                 e_delta = row["delta"]
                 d_id = row["d_id"]
                 rows_to_insert.append((p_id, e_value, e_delta))
-                # Update last Elo value for this driver for subsequent events
                 last_elo_map[d_id] = e_value
 
         if rows_to_insert:
