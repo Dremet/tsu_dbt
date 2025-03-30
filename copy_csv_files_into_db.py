@@ -12,9 +12,9 @@ from sqlalchemy import create_engine, text
 ###############################################################################
 CSV_SUFFIX_TO_TABLE = {
     "event.checkpoint-results.csv": "json_checkpoint_results",
-    "event.details.compounds.csv": "log_compounds",
-    "event.details.drivers.csv": "log_drivers",
-    "event.details.main.csv": "log_main",
+    "event_details.compounds.csv": "log_compounds",
+    "event_details.drivers.csv": "log_drivers",
+    "event_details.main.csv": "log_main",
     "event.drivers.csv": "json_drivers",
     "event.event.csv": "json_event",
     "event.fastest-lap-results.csv": "json_fastest_lap_results",
