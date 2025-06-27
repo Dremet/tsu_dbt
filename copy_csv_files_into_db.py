@@ -1,16 +1,32 @@
 #!/usr/bin/env python3
+"""
+Lädt CSV-Dateien aus einem Ordner in die passenden Tabellen des Schemas
+`source`.  Mit `--truncate` können die Tabellen vor dem ersten Import
+geleert werden.
 
+Beispiel:
+    # erster Import eines Typs  ➜ Tabellen leeren + laden
+    uv run python copy_csv_files_into_db.py \
+        --truncate /home/data/events/archive/20250313_214747/csv events
+
+    # Folge-Imports desselben Typs ➜ nur laden
+    uv run python copy_csv_files_into_db.py \
+        /home/data/events/archive/20250314_091337/csv events
+"""
+import argparse
 import os
 import sys
 import time
+from typing import Dict, List
+
 import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 
 ###############################################################################
-# 1) Dictionary of file suffix -> table name
+# 1) Mapping: Dateinamens-Suffix → Tabellenname
 ###############################################################################
-CSV_SUFFIX_TO_TABLE = {
+CSV_SUFFIX_TO_TABLE: Dict[str, str] = {
     "event.checkpoint-results.csv": "json_checkpoint_results",
     "event_details.compounds.csv": "log_compounds",
     "event_details.drivers.csv": "log_drivers",
@@ -20,141 +36,148 @@ CSV_SUFFIX_TO_TABLE = {
     "event.fastest-lap-results.csv": "json_fastest_lap_results",
     "event.lap-results.csv": "json_lap_results",
     "event.race-results.csv": "json_race_results",
-    # Add more suffixes if needed
+    # ggf. ergänzen …
 }
 
 ###############################################################################
-# 2) Lock file name; we'll place it in the same directory as this script
+# 2) Lock-Datei (verhindert parallele Lauf­zeit­kollisionen)
 ###############################################################################
 LOCKFILE = os.path.join(os.path.dirname(__file__), "RUNNING")
 
 
-###############################################################################
-# 3) Acquire / release lock functions
-###############################################################################
-def acquire_lock():
-    """
-    Wait until RUNNING file does not exist, then create it.
-    This ensures only one run at a time.
-    """
-    i = 0
+def acquire_lock(skip_lock: bool = False) -> None:
+    """Erzwingt Exklusivität per RUNNING-Datei."""
+    if skip_lock:
+        return
+    tries = 0
     while os.path.exists(LOCKFILE):
-        if i > 100:
-            raise Exception("Waited 100 times, exiting")
-        print("Another run is in progress. Waiting...")
+        if tries >= 100:
+            raise TimeoutError("Lockfile bleibt bestehen (100× gewartet) – Abbruch.")
+        print("Anderer Import aktiv – warte …")
         time.sleep(3)
-        i += 1
-    print("Acquiring lock by creating RUNNING file...")
-    with open(LOCKFILE, "w") as f:
-        pass  # create empty file
+        tries += 1
+    print("Lock erhalten (RUNNING-Datei angelegt).")
+    open(LOCKFILE, "w").close()
 
 
-def release_lock():
-    """
-    Remove the RUNNING file so another run can proceed.
-    """
+def release_lock(skip_lock: bool = False) -> None:
+    """Entfernt RUNNING-Datei am Ende."""
+    if skip_lock:
+        return
     if os.path.exists(LOCKFILE):
         os.remove(LOCKFILE)
-        print("Lock released. RUNNING file removed.")
+        print("Lock freigegeben.")
     else:
-        print("Warning: LOCKFILE not found at release time.")
+        print("Warnung: Lockfile fehlte beim Freigeben.")
 
 
 ###############################################################################
-# 4) Main function
+# 3) Import-Routine
 ###############################################################################
-def import_csv_files(folder_path, db_url, server):
-    """
-    - Acquire the global lock.
-    - Truncate all known tables in the 'source' schema.
-    - Scan for CSV files in the given folder, match suffix to table name.
-    - Append rows to the truncated tables (if_exists='append').
-    - Release the lock at the end.
-    """
-    acquire_lock()
+def import_csv_files(
+    folder_path: str,
+    db_url: str,
+    server: str,
+    truncate: bool = False,
+    skip_lock: bool = False,
+) -> None:
+    acquire_lock(skip_lock)
 
-    # Create DB engine
     engine = create_engine(db_url)
 
-    # Step A: Truncate all known tables
-    print("Truncating all known tables in 'source' schema...")
-    with engine.begin() as conn:
-        for table_name in CSV_SUFFIX_TO_TABLE.values():
-            try:
-                conn.execute(text(f"TRUNCATE TABLE source.{table_name};"))
-                print(f"  -> TRUNCATE source.{table_name}")
-            except Exception as e:
-                print(
-                    f"  -> Could not truncate source.{table_name} (maybe doesn't exist yet). Error: {e}"
-                )
+    # A) Tabellen leeren (nur beim allerersten Import eines Typs)
+    if truncate:
+        print("TRUNCATE aller bekannten source-Tabellen …")
+        with engine.begin() as conn:
+            for tbl in CSV_SUFFIX_TO_TABLE.values():
+                try:
+                    conn.execute(text(f"TRUNCATE source.{tbl};"))
+                    print(f"  → source.{tbl} geleert")
+                except Exception as exc:  # Tabelle existiert evtl. noch nicht
+                    print(f"  → konnte source.{tbl} nicht truncaten ({exc})")
 
-    # Step B: Process CSV files
-    csv_files = [f for f in os.listdir(folder_path) if f.endswith(".csv")]
-    csv_files.sort()
+    # B) Alle CSV-Dateien lesen & anhängen
+    csv_files: List[str] = sorted(
+        f for f in os.listdir(folder_path) if f.endswith(".csv")
+    )
 
     for csv_file in csv_files:
         file_path = os.path.join(folder_path, csv_file)
 
-        matched_table = None
-        for suffix, table_name in CSV_SUFFIX_TO_TABLE.items():
-            if csv_file.endswith(suffix):
-                matched_table = table_name
-                break
-
-        if not matched_table:
-            print(f"Skipping file (no matching suffix): {csv_file}")
+        # passendes Ziel ermitteln
+        target_table = next(
+            (tbl for suf, tbl in CSV_SUFFIX_TO_TABLE.items() if csv_file.endswith(suf)),
+            None,
+        )
+        if target_table is None:
+            print(f"Überspringe unbekannte Datei: {csv_file}")
             continue
 
-        print(f"Processing file: {csv_file}")
-        print(f" -> Appending to source.{matched_table}")
-
+        print(f"→ lade {csv_file}  ➜  source.{target_table}")
         try:
             df = pd.read_csv(file_path)
 
-            if matched_table == "json_event":
+            # Zusatz-Spalte für json_event
+            if target_table == "json_event":
                 df["server"] = server
 
             df.to_sql(
-                matched_table,
+                target_table,
                 engine,
                 schema="source",
-                if_exists="append",  # note: appending to the truncated table
+                if_exists="append",
                 index=False,
+                method="multi",
             )
-        except Exception as e:
-            print(f"Error while processing {csv_file}: {e}")
+        except Exception as exc:
+            print(f"Fehler bei {csv_file}: {exc}")
 
     engine.dispose()
-    print("All CSV files processed.")
-    release_lock()
+    release_lock(skip_lock)
+    print("Import abgeschlossen.")
 
 
 ###############################################################################
-# 5) Script entry point
+# 4) CLI-Entry-Point
 ###############################################################################
-if __name__ == "__main__":
+def main() -> None:
     load_dotenv()
     db_url = os.getenv("PG_DATABASE_URL")
-    if not db_url:
-        print("Error: PG_DATABASE_URL not found in .env")
+    if db_url is None:
+        print("PG_DATABASE_URL fehlt in .env")
         sys.exit(1)
 
-    if len(sys.argv) < 3:
-        print(
-            "Usage: uv run python copy_csv_files_into_db.py.py <folder_path> <event/heat/hotlapping>"
-        )
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--truncate",
+        action="store_true",
+        help="leert die source-Tabellen vor dem Import",
+    )
+    parser.add_argument(
+        "--skip-lock",
+        action="store_true",
+        help="überspringt Dateilock (nur für kontrollierte Batch-Runs)",
+    )
+    parser.add_argument("folder", help="Ordner mit CSV-Dateien")
+    parser.add_argument(
+        "server",
+        choices=["events", "heats", "hotlapping"],
+        help="Typ (wird in json_event.server geschrieben)",
+    )
+    args = parser.parse_args()
+
+    if not os.path.isdir(args.folder):
+        print(f"'{args.folder}' ist kein gültiger Ordner.")
         sys.exit(1)
 
-    folder = sys.argv[1]
-    if not os.path.isdir(folder):
-        print(f"Error: '{folder}' is not a valid directory.")
-        sys.exit(1)
+    import_csv_files(
+        folder_path=args.folder,
+        db_url=db_url,
+        server=args.server,
+        truncate=args.truncate,
+        skip_lock=args.skip_lock,
+    )
 
-    server = sys.argv[2]
-    assert server in [
-        "events",
-        "heats",
-        "hotlapping",
-    ], "I only know events/heats/hotlapping as server (second command line argument)"
 
-    import_csv_files(folder, db_url, server)
+if __name__ == "__main__":
+    main()

@@ -5,6 +5,7 @@ with teams_uppercase as (
     FROM source.json_drivers
 )
 SELECT 
+    distinct
     {{ dbt_utils.generate_surrogate_key(['team_upper']) }} as id,
     team as name
 FROM teams_uppercase

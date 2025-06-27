@@ -79,6 +79,8 @@ def fetch_new_race_data(conn, server: str) -> pd.DataFrame:
         JOIN enriched.new_event e 
             ON e.id = p.event_id
         WHERE e.server = :srv
+        and not e.hotlapping 
+        and e.finished_state = 'Finished'
     """
     return pd.read_sql(text(sql), conn, params={"srv": server})
 

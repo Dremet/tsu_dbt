@@ -1,0 +1,16 @@
+-- results of a race 
+
+-- event id
+-- pos
+-- driver name
+-- driver steam id
+-- driver team
+-- total time
+-- delta to winner
+-- number pit stops
+-- list of tire compounds in format "H-S-M" for example, if any
+-- fastest lap
+-- positions gained compared to start
+-- fuel left in percentage in the end
+-- tire condition in percentage in the end
+-- elo gained
